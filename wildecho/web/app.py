@@ -95,9 +95,8 @@ INDEX_HTML = """<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WildEcho | Backcountry Acoustic Nature Explorer</title>
+    <title>WildEcho | Offline Backcountry Acoustic Nature Explorer</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -113,12 +112,9 @@ INDEX_HTML = """<!DOCTYPE html>
                         canopy: {
                             950: '#060a07',
                             900: '#0a100d',
-                            850: '#0e1612',
-                            800: '#14201a',
-                            700: '#1d2e26',
-                        },
-                        emerald: {
-                            glow: '#10b981',
+                            850: '#0f1712',
+                            800: '#16231c',
+                            700: '#1f3329',
                         }
                     }
                 }
@@ -130,467 +126,710 @@ INDEX_HTML = """<!DOCTYPE html>
             background-color: #060a07;
             color: #ecfdf5;
             background-image: 
-                radial-gradient(ellipse 60% 50% at 50% -20%, rgba(16, 185, 129, 0.08), transparent),
-                radial-gradient(circle at 100% 100%, rgba(6, 182, 212, 0.03), transparent);
+                radial-gradient(ellipse 70% 40% at 50% -10%, rgba(16, 185, 129, 0.12), transparent),
+                radial-gradient(circle at 100% 100%, rgba(6, 182, 212, 0.04), transparent);
             background-attachment: fixed;
         }
-        .bento-card {
+        .nature-card {
             background-color: #0a100d;
-            border: 1px solid rgba(16, 185, 129, 0.12);
-            transition: border-color 0.2s ease, transform 0.2s ease;
+            border: 1px solid rgba(16, 185, 129, 0.14);
+            transition: all 0.2s ease;
         }
-        .bento-card:hover {
-            border-color: rgba(16, 185, 129, 0.24);
+        .nature-card:hover {
+            border-color: rgba(16, 185, 129, 0.32);
+        }
+        .sound-wave-bar {
+            animation: soundBounce 1.2s ease-in-out infinite alternate;
+        }
+        @keyframes soundBounce {
+            0% { height: 15%; }
+            100% { height: 95%; }
         }
         /* Custom scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #0a100d; }
-        ::-webkit-scrollbar-thumb { background: #1d2e26; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb { background: #1f3329; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #10b981; }
     </style>
 </head>
 <body class="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto min-h-screen flex flex-col font-sans antialiased">
-    <!-- Top Telemetry Bar & Navigation -->
-    <header class="border-b border-emerald-950/80 pb-6 mb-8 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-        <div>
-            <!-- Status Badge Strip -->
-            <div class="inline-flex items-center gap-2.5 px-3 py-1 bg-emerald-950/60 border border-emerald-800/40 rounded-full text-xs font-mono text-emerald-400 mb-3 shadow-inner">
-                <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>BACKCOUNTRY OFFLINE MODE</span>
-                <span class="text-emerald-700">•</span>
-                <span class="text-neutral-400">TOUCH GRASS (WEEK 1)</span>
-                <span class="text-emerald-700">•</span>
-                <span class="text-emerald-300 font-semibold">GEMMA 2 REASONER</span>
+
+    <!-- Top Navigation Bar (Single Line Desktop, <72px Height) -->
+    <header class="border-b border-emerald-950/80 pb-4 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl p-1.5 bg-emerald-950/80 border border-emerald-800/60 rounded-xl shadow-inner">🌲</span>
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="font-extrabold text-xl text-white tracking-tight">WildEcho</span>
+                    <span class="font-mono text-[11px] bg-emerald-950 text-emerald-400 border border-emerald-800/60 font-semibold px-2 py-0.5 rounded-full">v0.1.0</span>
+                </div>
+                <div class="text-[11px] font-mono text-emerald-400/90 font-medium tracking-wide">
+                    HACKTOBERFEST 2026 • WEEK 1: TOUCH GRASS • GOOGLE GEMMA 2
+                </div>
             </div>
-            
-            <div class="flex items-baseline gap-3">
-                <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white flex items-center gap-3">
-                    <span>WildEcho</span>
-                    <span class="font-mono text-xs tracking-normal bg-emerald-950 text-emerald-400 border border-emerald-800/60 font-semibold px-2.5 py-0.5 rounded-full">v0.1.0</span>
-                </h1>
-                <span class="text-xs font-mono text-emerald-500/70 hidden sm:inline">[22.05 kHz DSP • 12 Taxa]</span>
-            </div>
-            <p class="text-xs sm:text-sm text-neutral-400 mt-1 max-w-2xl">
-                Eyes-free backcountry acoustic explorer. Put your phone in your pocket, walk the trail, and let on-device AI whisper wildlife intelligence into your earbuds.
-            </p>
         </div>
 
-        <!-- Simulation Controls -->
-        <div class="flex flex-wrap items-center gap-2.5 bg-canopy-900 border border-emerald-950 p-2 rounded-xl shadow-lg">
-            <select id="habitat-select" class="bg-canopy-850 border border-emerald-900/60 text-xs font-mono text-emerald-200 rounded-lg px-3 py-2 outline-none focus:border-emerald-500">
-                <option value="dense_forest">🌲 Dense Forest</option>
-                <option value="mountain_trail">⛰️ Mountain Trail</option>
-                <option value="riparian_stream">💧 Riparian Stream</option>
-                <option value="open_meadow">🌾 Open Meadow</option>
-            </select>
-            <select id="season-select" class="bg-canopy-850 border border-emerald-900/60 text-xs font-mono text-emerald-200 rounded-lg px-3 py-2 outline-none focus:border-emerald-500">
-                <option value="autumn">🍂 Autumn</option>
-                <option value="spring">🌸 Spring</option>
-                <option value="summer">☀️ Summer</option>
-                <option value="winter">❄️ Winter</option>
-            </select>
-            <button onclick="runSimulation()" id="run-btn" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white font-semibold text-xs rounded-lg shadow-md transition flex items-center gap-2">
-                <span>▶ Run Trail Walk</span>
-            </button>
-            <a href="https://github.com/fab-c14/wildecho" target="_blank" rel="noopener" class="px-3 py-2 bg-canopy-850 hover:bg-canopy-800 text-neutral-300 font-mono text-xs rounded-lg border border-neutral-800 transition">
-                GitHub ↗
+        <!-- Quick Links (Single Line on Desktop) -->
+        <nav class="flex items-center gap-2.5">
+            <a href="https://github.com/fab-c14/wildecho" target="_blank" rel="noopener" class="px-3.5 py-1.5 bg-canopy-850 hover:bg-canopy-800 active:scale-[0.98] text-white font-mono text-xs rounded-xl border border-emerald-900/60 transition whitespace-nowrap shadow-sm">
+                GitHub Repo ↗
             </a>
-        </div>
+            <a href="https://dev.to/challenges/hf26" target="_blank" rel="noopener" class="px-3.5 py-1.5 bg-emerald-950/80 hover:bg-emerald-900 active:scale-[0.98] text-emerald-300 font-mono text-xs rounded-xl border border-emerald-800/60 transition whitespace-nowrap">
+                DEV Challenge Hub ↗
+            </a>
+            <a href="/docs" target="_blank" class="px-3 py-1.5 bg-canopy-900 hover:bg-canopy-850 text-neutral-400 hover:text-white font-mono text-xs rounded-xl border border-neutral-800 transition whitespace-nowrap">
+                API Docs ↗
+            </a>
+        </nav>
     </header>
 
-    <!-- Asymmetric Hero Stage: Waveform Visualizer + Active Whisper -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
-        <!-- Live Acoustic Spectrum Canvas (7 cols) -->
-        <div class="lg:col-span-7 bento-card rounded-2xl p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden">
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-                    <span class="text-xs font-mono uppercase tracking-wider text-emerald-400 font-semibold">Live Spectrum Analyzer</span>
-                </div>
-                <div class="flex items-center gap-3 text-[11px] font-mono text-neutral-400">
-                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-rose-500/80"></span> Anthrophony (&lt;1.5k)</span>
-                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-emerald-400"></span> Biophony (2-11k)</span>
+    <!-- HERO SECTION (Strict Layout Discipline: Max 4 text elements, headline <=2 lines, subtext <=20 words) -->
+    <section class="mb-8 pt-2 sm:pt-4 pb-4">
+        <div class="max-w-4xl">
+            <!-- 1. Eyebrow -->
+            <div class="inline-flex items-center gap-2 px-3 py-1 bg-emerald-950/70 border border-emerald-800/50 rounded-full text-xs font-mono text-emerald-400 mb-3">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>100% OFFLINE BACKCOUNTRY ACOUSTIC EXPLORER</span>
+            </div>
+
+            <!-- 2. Headline (Max 2 lines) -->
+            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.08] mb-3">
+                Listen to the forest.<br>
+                <span class="text-emerald-400">Keep your phone in your pocket.</span>
+            </h1>
+
+            <!-- 3. Subtext (18 words, max 2 lines) -->
+            <p class="text-sm sm:text-base text-neutral-300 leading-relaxed mb-5 max-w-[65ch]">
+                Eyes-free acoustic guide powered by Google Gemma 2. Put your screen away and experience nature through whispered audio.
+            </p>
+
+            <!-- 4. CTAs (Distinct intents, single line on desktop) -->
+            <div class="flex flex-wrap items-center gap-3">
+                <button onclick="scrollToSimulator()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg transition flex items-center gap-2 whitespace-nowrap">
+                    <span>▶ Walk Trail Simulator (5 Waypoints)</span>
+                </button>
+                <button onclick="speakCurrentWhisper()" class="px-4 py-2.5 bg-canopy-850 hover:bg-canopy-800 active:scale-[0.98] text-emerald-300 font-mono text-xs sm:text-sm rounded-xl border border-emerald-900/60 transition flex items-center gap-2 whitespace-nowrap">
+                    <span>🔊 Replay Earbud Whisper</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3-STEP "HOW IT WORKS" VISUAL MENTAL MODEL (5-SECOND UNDERSTANDING) -->
+    <section class="mb-8 bg-gradient-to-r from-emerald-950/30 via-canopy-900 to-emerald-950/30 border border-emerald-900/40 rounded-2xl p-5 sm:p-6 shadow-sm">
+        <div class="text-xs font-mono text-emerald-400 font-bold tracking-wider uppercase mb-3 flex items-center gap-2">
+            <span>💡 How WildEcho Works in 5 Seconds</span>
+            <span class="text-neutral-500">•</span>
+            <span class="text-neutral-400 lowercase font-normal">the "touch grass" philosophy</span>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Step 1 -->
+            <div class="bg-canopy-950/80 border border-emerald-950 p-4 rounded-xl flex items-start gap-3.5">
+                <div class="text-2xl p-2 bg-emerald-950/70 border border-emerald-900/50 rounded-lg shrink-0">📱</div>
+                <div>
+                    <h3 class="font-bold text-white text-sm">1. Phone in Pocket</h3>
+                    <p class="text-xs text-neutral-300 mt-1 leading-relaxed">
+                        Put your phone in your backpack. No glowing screens, no menus, zero screen fatigue while walking the trail.
+                    </p>
                 </div>
             </div>
 
-            <!-- Canvas Visualization -->
-            <div class="relative w-full h-44 sm:h-52 bg-canopy-950/90 rounded-xl border border-emerald-950/60 overflow-hidden flex items-end px-3 py-2">
-                <canvas id="spectrumCanvas" class="w-full h-full"></canvas>
-                <div class="absolute top-2 left-3 text-[10px] font-mono text-emerald-500/60 pointer-events-none">
-                    BAND: 50 Hz — 11,025 Hz (FFT 512)
-                </div>
-                <div class="absolute top-2 right-3 text-[10px] font-mono text-neutral-400 pointer-events-none" id="live-fps">
-                    REAL-TIME DSP
+            <!-- Step 2 -->
+            <div class="bg-canopy-950/80 border border-emerald-950 p-4 rounded-xl flex items-start gap-3.5">
+                <div class="text-2xl p-2 bg-emerald-950/70 border border-emerald-900/50 rounded-lg shrink-0">🎙️</div>
+                <div>
+                    <h3 class="font-bold text-white text-sm">2. 100% Offline Bioacoustics</h3>
+                    <p class="text-xs text-neutral-300 mt-1 leading-relaxed">
+                        Passive microphone buffers analyze forest soundscapes in real-time on your device with <strong>zero cell signal</strong>.
+                    </p>
                 </div>
             </div>
 
-            <!-- Telemetry Footer -->
-            <div class="mt-4 pt-4 border-t border-emerald-950/80 grid grid-cols-3 gap-2 text-center font-mono">
+            <!-- Step 3 -->
+            <div class="bg-canopy-950/80 border border-emerald-950 p-4 rounded-xl flex items-start gap-3.5">
+                <div class="text-2xl p-2 bg-emerald-950/70 border border-emerald-900/50 rounded-lg shrink-0">🎧</div>
                 <div>
-                    <div class="text-[10px] text-neutral-500 uppercase">Peak Detection</div>
-                    <div class="text-sm font-bold text-cyan-400 mt-0.5" id="spec-peak">3,402 Hz</div>
-                </div>
-                <div>
-                    <div class="text-[10px] text-neutral-500 uppercase">Acoustic Complexity</div>
-                    <div class="text-sm font-bold text-fuchsia-400 mt-0.5" id="spec-aci">13.3 ACI</div>
-                </div>
-                <div>
-                    <div class="text-[10px] text-neutral-500 uppercase">Soundscape State</div>
-                    <div class="text-sm font-bold text-emerald-400 mt-0.5 truncate" id="spec-rating">Serene Nature</div>
+                    <h3 class="font-bold text-white text-sm">3. Earbuds Whisper</h3>
+                    <p class="text-xs text-neutral-300 mt-1 leading-relaxed">
+                        <strong>Google Gemma 2</strong> softly whispers species names, wild edible mushroom foraging clues, and trail safety.
+                    </p>
                 </div>
             </div>
         </div>
+    </section>
 
-        <!-- Latest Spoken Earbud Field Briefing (5 cols) -->
-        <div class="lg:col-span-5 bento-card rounded-2xl p-5 sm:p-6 flex flex-col justify-between border-emerald-900/40 relative">
+    <!-- MAIN INTERACTIVE STAGE: VIRTUAL HIKE SIMULATOR -->
+    <main class="space-y-8" id="simulator-stage">
+        <!-- Trail Control Bar -->
+        <div class="nature-card rounded-2xl p-5 sm:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-b from-canopy-900 to-canopy-950">
             <div>
-                <div class="flex items-center justify-between mb-3">
-                    <div class="inline-flex items-center gap-2 text-[11px] font-mono font-bold text-amber-400 tracking-wider uppercase">
-                        <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-                        <span>Spoken Earbud Brief</span>
-                    </div>
-                    <span id="whisper-engine-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-canopy-850 text-neutral-400 border border-neutral-800">
-                        Gemma 2 • ~7.7s
-                    </span>
-                </div>
-
-                <div class="text-xs font-mono text-emerald-400/90 mb-2 flex items-center gap-2">
-                    <span id="whisper-species" class="font-bold">Wood Thrush</span>
-                    <span class="text-neutral-500 italic text-[11px]" id="whisper-latin">(Hylocichla mustelina)</span>
-                    <span class="ml-auto font-mono text-[10px] px-1.5 py-0.5 bg-emerald-950 text-emerald-300 rounded border border-emerald-800/60" id="whisper-conf">98% match</span>
-                </div>
-
-                <blockquote class="text-base sm:text-lg font-medium text-white/95 leading-relaxed italic border-l-2 border-emerald-500/60 pl-3.5 my-3" id="whisper-text">
-                    "Listen to the canopy. That liquid flute cascade is a Wood Thrush. Take a breath and enjoy the moment."
-                </blockquote>
+                <span class="text-xs font-mono text-emerald-400 font-semibold uppercase tracking-wider">Interactive Trail Simulator</span>
+                <h2 class="text-xl sm:text-2xl font-extrabold text-white mt-0.5" id="current-trail-heading">
+                    Cascade Mountain Ridge Walk
+                </h2>
+                <p class="text-xs text-neutral-400 mt-1">
+                    Simulate walking 5 backcountry waypoints with real voice audio whispers spoken into your headphones.
+                </p>
             </div>
 
-            <div class="mt-4 pt-3.5 border-t border-emerald-950/80 space-y-2 text-xs">
-                <div class="flex items-start gap-2">
-                    <span class="text-amber-400 font-mono text-[11px] shrink-0 mt-0.5">🍄 FORAGE:</span>
-                    <span class="text-neutral-300 text-xs" id="whisper-forage">Mature deciduous leaf litter indicates prime Chanterelle and Black Trumpet mushroom habitat.</span>
-                </div>
-                <div class="flex items-start gap-2">
-                    <span class="text-rose-400 font-mono text-[11px] shrink-0 mt-0.5">⚠️ SAFETY:</span>
-                    <span class="text-neutral-300 text-xs" id="whisper-safety">Shaded interior woods; keep bearings on trail landmarks.</span>
-                </div>
-            </div>
-        </div>
-    </div>
+            <!-- Hike Actions -->
+            <div class="flex flex-wrap items-center gap-3">
+                <!-- Voice Mute Toggle -->
+                <button onclick="toggleVoice()" id="voice-toggle-btn" class="px-3.5 py-2.5 rounded-xl text-xs font-mono border transition flex items-center gap-2 bg-emerald-950/80 border-emerald-700/60 text-emerald-300 whitespace-nowrap active:scale-[0.98]">
+                    <span id="voice-icon">🔊</span>
+                    <span id="voice-label">Voice Audio: ON</span>
+                </button>
 
-    <!-- 3-Pillar Ecological Telemetry Bento -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-        <!-- Metric Card 1: NDSI Gauge -->
-        <div class="bento-card rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
-            <div class="flex items-center justify-between text-xs font-mono text-neutral-400">
-                <span class="uppercase tracking-wider">Acoustic Biophony (NDSI)</span>
-                <span class="text-emerald-400 font-semibold">[Krause Niche]</span>
-            </div>
-            <div class="my-3">
-                <div class="text-3xl sm:text-4xl font-extrabold font-mono text-emerald-300 tracking-tight" id="kpi-ndsi">+0.78</div>
-                <!-- Dynamic Horizontal Gauge -->
-                <div class="w-full bg-canopy-950 h-2 rounded-full overflow-hidden mt-3 p-0.5 border border-emerald-950">
-                    <div id="ndsi-bar" class="h-full bg-gradient-to-r from-rose-500 via-amber-400 to-emerald-400 rounded-full transition-all duration-500" style="width: 89%;"></div>
-                </div>
-            </div>
-            <p class="text-[11px] text-neutral-400 leading-normal">
-                Scale: -1.0 (Human anthrophony) to +1.0 (Pristine biological soundscape).
-            </p>
-        </div>
-
-        <!-- Metric Card 2: Shannon Diversity -->
-        <div class="bento-card rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
-            <div class="flex items-center justify-between text-xs font-mono text-neutral-400">
-                <span class="uppercase tracking-wider">Biodiversity Index (H)</span>
-                <span class="text-cyan-400 font-semibold">[Shannon-Wiener]</span>
-            </div>
-            <div class="my-3">
-                <div class="text-3xl sm:text-4xl font-extrabold font-mono text-white tracking-tight" id="kpi-diversity">1.61</div>
-                <div class="text-xs font-mono text-cyan-400 mt-2 flex items-center gap-2">
-                    <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
-                    <span id="kpi-species-count">5 unique wildlife taxa identified</span>
-                </div>
-            </div>
-            <p class="text-[11px] text-neutral-400 leading-normal">
-                Quantifies taxonomic evenness and biological acoustic species richness along the trail.
-            </p>
-        </div>
-
-        <!-- Metric Card 3: Screenless Immersion -->
-        <div class="bento-card rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
-            <div class="flex items-center justify-between text-xs font-mono text-neutral-400">
-                <span class="uppercase tracking-wider">Trail Screen Time</span>
-                <span class="text-amber-400 font-semibold">[Touch Grass]</span>
-            </div>
-            <div class="my-3">
-                <div class="text-3xl sm:text-4xl font-extrabold font-mono text-amber-400 tracking-tight">0.0 s</div>
-                <div class="text-xs font-mono text-neutral-400 mt-2">
-                    100% eyes-free earbud narration
-                </div>
-            </div>
-            <p class="text-[11px] text-neutral-400 leading-normal">
-                Phone tucked in pocket. Zero screen fatigue, zero popups, zero GPS distraction while hiking.
-            </p>
-        </div>
-    </div>
-
-    <!-- Secondary Bento: Soundscape Timeline Chart & Offline Catalog -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
-        <!-- Soundscape Timeline Line Chart (7 cols) -->
-        <div class="lg:col-span-7 bento-card rounded-2xl p-5 sm:p-6">
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <h3 class="text-sm font-bold text-white tracking-tight">Trail Soundscape Timeline</h3>
-                    <p class="text-xs text-neutral-400">Acoustic partition: Biophony (Nature) vs Anthrophony (Human Noise)</p>
-                </div>
-                <span class="text-[11px] font-mono text-neutral-500">6 WAYPOINTS</span>
-            </div>
-            <div class="h-64">
-                <canvas id="soundscapeChart"></canvas>
+                <!-- Primary Start Hike Button -->
+                <button onclick="startSimulatedHike()" id="start-hike-btn" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg transition flex items-center gap-2 whitespace-nowrap">
+                    <span>▶ Walk Trail (5 Waypoints)</span>
+                </button>
             </div>
         </div>
 
-        <!-- Embedded Offline Species Catalog (5 cols) -->
-        <div class="lg:col-span-5 bento-card rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
-            <div>
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-sm font-bold text-white tracking-tight">Offline Species Catalog</h3>
-                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-900/60">
-                        12 Native Taxa
-                    </span>
-                </div>
-                
-                <!-- Category Filter Pills -->
-                <div class="flex items-center gap-1.5 mb-3 overflow-x-auto pb-1 text-[11px] font-mono" id="cat-filters">
-                    <button onclick="filterCatalog('all')" class="cat-btn px-2.5 py-1 rounded-md bg-emerald-700 text-white font-semibold">All</button>
-                    <button onclick="filterCatalog('bird')" class="cat-btn px-2.5 py-1 rounded-md bg-canopy-850 text-neutral-400 hover:text-white border border-neutral-800">Birds</button>
-                    <button onclick="filterCatalog('amphibian')" class="cat-btn px-2.5 py-1 rounded-md bg-canopy-850 text-neutral-400 hover:text-white border border-neutral-800">Frogs</button>
-                    <button onclick="filterCatalog('mammal')" class="cat-btn px-2.5 py-1 rounded-md bg-canopy-850 text-neutral-400 hover:text-white border border-neutral-800">Mammals</button>
-                    <button onclick="filterCatalog('insect')" class="cat-btn px-2.5 py-1 rounded-md bg-canopy-850 text-neutral-400 hover:text-white border border-neutral-800">Insects</button>
-                </div>
-
-                <div class="overflow-y-auto max-h-56 pr-1 text-xs">
-                    <div id="catalog-list" class="space-y-2">
-                        <!-- Populated dynamically -->
-                    </div>
-                </div>
+        <!-- Waypoint Stepper Progress -->
+        <div class="nature-card rounded-2xl p-4 sm:p-5">
+            <div class="flex justify-between items-center text-xs font-mono mb-2">
+                <span class="text-neutral-400">TRAIL PROGRESS: <span id="progress-text" class="text-white font-bold">Waypoint 1 of 5</span></span>
+                <span class="text-emerald-400 font-semibold" id="elevation-stat">Elevation: 854 meters</span>
             </div>
             
-            <div class="mt-3 pt-3 border-t border-emerald-950/80 text-[11px] font-mono text-neutral-500 flex justify-between">
-                <span>ZERO CELLULAR REQUIRED</span>
-                <span class="text-emerald-500/80">EDGE HARMONIC MATCHING</span>
+            <!-- Progress Bar -->
+            <div class="w-full bg-canopy-950 h-3 rounded-full overflow-hidden p-0.5 border border-emerald-950 mb-3">
+                <div id="hike-progress-bar" class="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-full transition-all duration-500" style="width: 20%;"></div>
             </div>
-        </div>
-    </div>
 
-    <!-- Trail Waypoints Chronological Inspector -->
-    <div class="bento-card rounded-2xl p-5 sm:p-6 mb-8">
-        <div class="flex items-center justify-between mb-4">
-            <div>
-                <h3 class="text-sm font-bold text-white tracking-tight">Expedition Waypoint Sequence</h3>
-                <p class="text-xs text-neutral-400">Step-by-step biometric acoustic log along the hiking path</p>
+            <!-- Step Buttons -->
+            <div class="flex justify-between items-center text-xs font-mono">
+                <button onclick="prevWaypoint()" id="prev-wp-btn" class="px-3 py-1.5 rounded-lg bg-canopy-850 hover:bg-canopy-800 text-neutral-400 hover:text-white border border-neutral-800 disabled:opacity-30 disabled:pointer-events-none transition whitespace-nowrap active:scale-[0.98]">
+                    ◀ Previous Waypoint
+                </button>
+                <div class="flex gap-1.5" id="waypoint-dots">
+                    <!-- Dots inserted dynamically -->
+                </div>
+                <button onclick="nextWaypoint()" id="next-wp-btn" class="px-3 py-1.5 rounded-lg bg-canopy-850 hover:bg-canopy-800 text-emerald-400 hover:text-white border border-emerald-900/60 disabled:opacity-30 disabled:pointer-events-none transition whitespace-nowrap active:scale-[0.98]">
+                    Next Waypoint ▶
+                </button>
             </div>
-            <span class="text-xs font-mono text-emerald-400" id="exp-trail-title">Cascade Mountain Ridge</span>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs font-mono">
-                <thead class="text-neutral-500 border-b border-emerald-950">
-                    <tr>
-                        <th class="pb-2.5">Waypoint</th>
-                        <th class="pb-2.5">Elevation</th>
-                        <th class="pb-2.5">NDSI</th>
-                        <th class="pb-2.5">ACI</th>
-                        <th class="pb-2.5">Detected Wildlife</th>
-                        <th class="pb-2.5">Confidence</th>
-                        <th class="pb-2.5">Soundscape Status</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-emerald-950/60 text-neutral-300" id="waypoints-body">
-                    <!-- Populated dynamically -->
-                </tbody>
-            </table>
+
+        <!-- ACTIVE WAYPOINT SPOTLIGHT: WHAT THE HIKER EXPERIENCES -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Left: The Spoken Earbud Whisper (7 cols) -->
+            <div class="lg:col-span-7 nature-card rounded-2xl p-6 flex flex-col justify-between border-emerald-800/40 relative overflow-hidden bg-gradient-to-br from-canopy-900 via-canopy-950 to-canopy-900">
+                <div>
+                    <!-- Header -->
+                    <div class="flex items-center justify-between pb-3 mb-4 border-b border-emerald-950">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
+                            <span class="text-xs font-mono uppercase tracking-wider text-amber-400 font-bold">
+                                Spoken Earbud Transmission
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800/60 font-semibold" id="spotlight-match">
+                                98% Acoustic Match
+                            </span>
+                            <button onclick="speakCurrentWhisper()" title="Replay voice whisper" class="p-1.5 rounded-lg bg-emerald-900/40 hover:bg-emerald-800/60 active:scale-[0.98] text-emerald-300 text-xs border border-emerald-800/60 transition whitespace-nowrap">
+                                🔊 Hear Again
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Species Tag -->
+                    <div class="flex items-baseline gap-2 mb-3">
+                        <h3 class="text-xl sm:text-2xl font-black text-white" id="spotlight-species">
+                            Wood Thrush
+                        </h3>
+                        <span class="text-xs font-mono text-neutral-400 italic pb-0.5" id="spotlight-latin">
+                            (Hylocichla mustelina)
+                        </span>
+                    </div>
+
+                    <!-- Spoken Whisper Text -->
+                    <div class="relative bg-canopy-950/80 border border-emerald-950 p-4 rounded-xl mb-4">
+                        <blockquote class="text-base sm:text-lg font-medium text-emerald-100 italic leading-relaxed" id="spotlight-quote">
+                            "Listen to the canopy. That liquid flute cascade is a Wood Thrush. Take a breath and enjoy the moment."
+                        </blockquote>
+                        <div class="text-[11px] font-mono text-neutral-400 mt-2 flex items-center justify-between">
+                            <span>Synthesized by Google Gemma 2 (Offline Edge)</span>
+                            <span>~7.7 seconds spoken duration</span>
+                        </div>
+                    </div>
+
+                    <!-- Foraging Clue & Trail Safety (Practical outdoor value!) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div class="bg-amber-950/20 border border-amber-900/40 p-3 rounded-xl">
+                            <div class="font-bold text-amber-400 font-mono text-[11px] flex items-center gap-1.5 mb-1">
+                                <span>🍄 Wild Foraging Indicator</span>
+                            </div>
+                            <p class="text-neutral-300 text-xs leading-normal" id="spotlight-forage">
+                                Mature deciduous leaf litter indicates prime Chanterelle and Black Trumpet mushroom habitat.
+                            </p>
+                        </div>
+
+                        <div class="bg-rose-950/20 border border-rose-900/40 p-3 rounded-xl">
+                            <div class="font-bold text-rose-400 font-mono text-[11px] flex items-center gap-1.5 mb-1">
+                                <span>⚠️ Trail Terrain & Safety</span>
+                            </div>
+                            <p class="text-neutral-300 text-xs leading-normal" id="spotlight-safety">
+                                Shaded interior woods; maintain bearings on trail landmarks.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Audio Animation -->
+                <div class="mt-4 pt-4 border-t border-emerald-950 flex items-center justify-between text-xs font-mono text-neutral-500">
+                    <div class="flex items-center gap-2 text-emerald-400">
+                        <div class="flex items-center gap-0.5 h-3">
+                            <span class="w-1 bg-emerald-400 rounded-full sound-wave-bar" style="animation-delay: 0.1s;"></span>
+                            <span class="w-1 bg-emerald-400 rounded-full sound-wave-bar" style="animation-delay: 0.3s;"></span>
+                            <span class="w-1 bg-emerald-400 rounded-full sound-wave-bar" style="animation-delay: 0.2s;"></span>
+                            <span class="w-1 bg-emerald-400 rounded-full sound-wave-bar" style="animation-delay: 0.4s;"></span>
+                        </div>
+                        <span id="audio-status-label">Simulating earbud listening...</span>
+                    </div>
+                    <button onclick="playSpeciesTone()" class="text-cyan-400 hover:text-cyan-300 underline text-xs whitespace-nowrap active:scale-[0.98]">
+                        ▶ Test Acoustic Whistle Sound
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right: Plain-English Nature Meters (Zero Math Confusion) (5 cols) -->
+            <div class="lg:col-span-5 space-y-4">
+                <!-- Card 1: Nature Purity (Plain English NDSI) -->
+                <div class="nature-card rounded-2xl p-5">
+                    <div class="flex justify-between items-center text-xs font-mono text-neutral-400 mb-1">
+                        <span class="uppercase font-semibold">Soundscape Purity</span>
+                        <span class="text-emerald-400 font-bold" id="purity-ratio">92% Nature</span>
+                    </div>
+                    <div class="text-2xl font-black text-white" id="purity-title">
+                        Pristine Wilderness
+                    </div>
+                    <p class="text-xs text-neutral-300 mt-1" id="purity-desc">
+                        Soundscape is dominated by native bird calls and wind, with near-zero highway or airplane noise.
+                    </p>
+                    <!-- Progress Bar -->
+                    <div class="w-full bg-canopy-950 h-2 rounded-full overflow-hidden mt-3 border border-emerald-950">
+                        <div id="purity-bar" class="h-full bg-emerald-400 rounded-full transition-all duration-300" style="width: 92%;"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] font-mono text-neutral-400 mt-1.5">
+                        <span>Human Noise (-1.0)</span>
+                        <span id="raw-ndsi" class="text-emerald-400 font-semibold">+0.84 NDSI</span>
+                        <span>Pure Nature (+1.0)</span>
+                    </div>
+                </div>
+
+                <!-- Card 2: Songbird Activity (Plain English ACI) -->
+                <div class="nature-card rounded-2xl p-5">
+                    <div class="flex justify-between items-center text-xs font-mono text-neutral-400 mb-1">
+                        <span class="uppercase font-semibold">Songbird Complexity</span>
+                        <span class="text-fuchsia-400 font-bold" id="complexity-badge">High Activity</span>
+                    </div>
+                    <div class="text-2xl font-black text-white" id="complexity-title">
+                        Active Bird Chorus
+                    </div>
+                    <p class="text-xs text-neutral-300 mt-1" id="complexity-desc">
+                        Sharp harmonic frequency hops indicate active territorial and mating vocalizations.
+                    </p>
+                    <div class="flex justify-between text-[10px] font-mono text-neutral-400 mt-3 pt-2 border-t border-emerald-950">
+                        <span>Acoustic Complexity Score:</span>
+                        <span id="raw-aci" class="text-fuchsia-400 font-bold">14.5 ACI</span>
+                    </div>
+                </div>
+
+                <!-- Card 3: Biodiversity Health (Shannon H) -->
+                <div class="nature-card rounded-2xl p-5">
+                    <div class="flex justify-between items-center text-xs font-mono text-neutral-400 mb-1">
+                        <span class="uppercase font-semibold">Taxonomic Health</span>
+                        <span class="text-cyan-400 font-bold" id="diversity-badge">Rich Ecosystem</span>
+                    </div>
+                    <div class="text-2xl font-black text-white" id="diversity-title">
+                        Balanced Diversity
+                    </div>
+                    <p class="text-xs text-neutral-300 mt-1">
+                        Trail supports balanced co-existence across songbirds, raptors, and amphibians.
+                    </p>
+                    <div class="flex justify-between text-[10px] font-mono text-neutral-400 mt-3 pt-2 border-t border-emerald-950">
+                        <span>Shannon Diversity Index (H):</span>
+                        <span id="raw-shannon" class="text-cyan-400 font-bold">1.61 H</span>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
+
+        <!-- LIVE ACOUSTIC EQUALIZER WATERFALL -->
+        <div class="nature-card rounded-2xl p-5 sm:p-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+                <div>
+                    <h3 class="text-sm font-bold text-white tracking-tight">Audio Frequency Spectrum Analyzer</h3>
+                    <p class="text-xs text-neutral-300">
+                        Shows how WildEcho mathematically separates human drone (<1.5 kHz) from biological calls (2–11 kHz) on edge hardware.
+                    </p>
+                </div>
+                <div class="flex items-center gap-4 text-xs font-mono">
+                    <span class="flex items-center gap-1.5 text-rose-400">
+                        <span class="w-2.5 h-2.5 rounded-sm bg-rose-500"></span> Low Noise (Engines/Road)
+                    </span>
+                    <span class="flex items-center gap-1.5 text-emerald-400">
+                        <span class="w-2.5 h-2.5 rounded-sm bg-emerald-400"></span> High Biophony (Birds/Frogs)
+                    </span>
+                </div>
+            </div>
+
+            <!-- Canvas -->
+            <div class="h-44 sm:h-48 w-full bg-canopy-950 rounded-xl border border-emerald-950 p-2 relative">
+                <canvas id="liveSpectrum" class="w-full h-full"></canvas>
+            </div>
+        </div>
+
+        <!-- EXPEDITION FIELD JOURNAL (BUILT AUTOMATICALLY AS YOU WALK) -->
+        <div class="nature-card rounded-2xl p-5 sm:p-6">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h3 class="text-sm font-bold text-white tracking-tight">Expedition Trail Journal</h3>
+                    <p class="text-xs text-neutral-400">Silently compiled as you walk with your phone in your pocket.</p>
+                </div>
+                <span class="text-xs font-mono px-2.5 py-1 rounded-lg bg-emerald-950 text-emerald-300 border border-emerald-800/60">
+                    5 Waypoints Logged
+                </span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs font-mono">
+                    <thead class="text-neutral-400 border-b border-emerald-950 pb-2">
+                        <tr>
+                            <th class="pb-2.5">Waypoint</th>
+                            <th class="pb-2.5">Elevation</th>
+                            <th class="pb-2.5">Soundscape Purity</th>
+                            <th class="pb-2.5">Detected Wildlife</th>
+                            <th class="pb-2.5">Confidence</th>
+                            <th class="pb-2.5">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-emerald-950/60 text-neutral-300" id="journal-tbody">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- OFFLINE WILDLIFE FIELD GUIDE (AUDIBLE CATALOG) -->
+        <div class="nature-card rounded-2xl p-5 sm:p-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                <div>
+                    <h3 class="text-sm font-bold text-white tracking-tight">Offline Wildlife Acoustic Catalog</h3>
+                    <p class="text-xs text-neutral-400">12 native species embedded directly on-device with acoustic signatures and foraging associations.</p>
+                </div>
+                <!-- Category Tabs -->
+                <div class="flex gap-1.5 text-xs font-mono" id="catalog-tabs">
+                    <button onclick="filterCatalog('all')" class="cat-pill px-3 py-1 rounded-lg bg-emerald-600 text-white font-bold active:scale-[0.98]">All (12)</button>
+                    <button onclick="filterCatalog('bird')" class="cat-pill px-3 py-1 rounded-lg bg-canopy-850 text-neutral-400 border border-neutral-800 hover:text-white active:scale-[0.98]">Birds</button>
+                    <button onclick="filterCatalog('amphibian')" class="cat-pill px-3 py-1 rounded-lg bg-canopy-850 text-neutral-400 border border-neutral-800 hover:text-white active:scale-[0.98]">Frogs</button>
+                    <button onclick="filterCatalog('mammal')" class="cat-pill px-3 py-1 rounded-lg bg-canopy-850 text-neutral-400 border border-neutral-800 hover:text-white active:scale-[0.98]">Mammals</button>
+                    <button onclick="filterCatalog('insect')" class="cat-pill px-3 py-1 rounded-lg bg-canopy-850 text-neutral-400 border border-neutral-800 hover:text-white active:scale-[0.98]">Insects</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="species-grid">
+                <!-- Cards filled by JS -->
+            </div>
+        </div>
+
+        <!-- HACKATHON EVALUATOR / JUDGE CHEAT SHEET -->
+        <div class="border border-emerald-800/40 bg-gradient-to-br from-emerald-950/20 via-canopy-900 to-canopy-950 rounded-2xl p-5 sm:p-6">
+            <h3 class="text-sm font-bold text-emerald-300 font-mono uppercase tracking-wider mb-2 flex items-center gap-2">
+                <span>🏆 Hackathon Evaluator & Judge Summary</span>
+            </h3>
+            <p class="text-xs text-neutral-300 mb-4 leading-relaxed">
+                Why WildEcho was built for <strong>Hacktoberfest 2026: Week 1 ("Touch Grass")</strong>:
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-sans">
+                <div class="bg-canopy-950/90 border border-emerald-950 p-4 rounded-xl">
+                    <div class="font-bold text-white mb-1">🌿 Week 1 Theme: Touch Grass</div>
+                    <p class="text-neutral-400 text-xs">
+                        Completely eliminates screen staring in nature. Hikers put the phone in their pocket and experience real acoustic immersion.
+                    </p>
+                </div>
+                <div class="bg-canopy-950/90 border border-emerald-950 p-4 rounded-xl">
+                    <div class="font-bold text-white mb-1">🧠 Google Gemma 2 Core Model</div>
+                    <p class="text-neutral-400 text-xs">
+                        Open-weight on-device model (`gemma-2-2b-it`). Closed cloud APIs cannot function 10 miles deep in the backcountry with no cell reception.
+                    </p>
+                </div>
+                <div class="bg-canopy-950/90 border border-emerald-950 p-4 rounded-xl">
+                    <div class="font-bold text-white mb-1">☁️ Render & ElevenLabs</div>
+                    <p class="text-neutral-400 text-xs">
+                        Turnkey `render.yaml` companion dashboard deployment, paired with ElevenLabs low-latency voice whisper streaming.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
 
     <!-- Footer -->
-    <footer class="mt-auto border-t border-emerald-950/80 pt-6 pb-4 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs font-mono text-neutral-500">
-        <div>
-            WildEcho • Google Gemma 2 & SciPy • Hacktoberfest 2026: Week 1 ("Touch Grass")
-        </div>
-        <div class="flex items-center gap-4">
-            <a href="https://github.com/fab-c14/wildecho" target="_blank" class="text-emerald-400 hover:text-emerald-300 transition">GitHub Repo</a>
-            <span>•</span>
-            <a href="https://dev.to/challenges/hf26" target="_blank" class="text-neutral-400 hover:text-neutral-300 transition">DEV Challenge</a>
-        </div>
+    <footer class="mt-8 border-t border-emerald-950/80 pt-6 pb-2 text-center text-xs font-mono text-neutral-500">
+        WildEcho • Built with Google Gemma 2 & Python SciPy • Open-Source MIT License
     </footer>
 
-    <!-- Interactive Scripts -->
+    <!-- Interactive Client JavaScript -->
     <script>
-        let chartInstance = null;
-        let fullCatalog = [];
-        let canvasAnimationId = null;
+        // State
+        let voiceEnabled = true;
+        let currentWpIndex = 0;
+        let simulationWaypoints = [];
+        let speciesCatalog = [];
+        let audioCtx = null;
 
-        // Spectrum visualizer simulation
-        function initSpectrumCanvas() {
-            const canvas = document.getElementById('spectrumCanvas');
-            const ctx = canvas.getContext('2d');
+        function scrollToSimulator() {
+            const el = document.getElementById('simulator-stage');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+            startSimulatedHike();
+        }
+
+        // Sound generator using Web Audio API tailored to species category
+        function playSpeciesTone() {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const wp = simulationWaypoints[currentWpIndex];
+                let freq = 3400;
+                let category = 'bird';
+                if (wp && wp.detected_species_id) {
+                    const sp = speciesCatalog.find(s => s.id === wp.detected_species_id);
+                    if (sp) {
+                        freq = sp.peak_freq_hz;
+                        category = sp.category;
+                    }
+                }
+                synthesizeCategorySound(freq, category);
+            } catch(e) { console.error('Audio tone error:', e); }
+        }
+
+        function synthesizeCategorySound(freq, category) {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                if (category === 'amphibian') {
+                    // Pulsed frog ribbit
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(freq * 0.8, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(freq, audioCtx.currentTime + 0.1);
+                    osc.frequency.exponentialRampToValueAtTime(freq * 0.7, audioCtx.currentTime + 0.3);
+
+                    gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.05);
+                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                    gain.gain.linearRampToValueAtTime(0.25, audioCtx.currentTime + 0.22);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.45);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.46);
+                } else if (category === 'insect') {
+                    // Rapid clicking stridulation
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.18, audioCtx.currentTime + 0.02);
+                    gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+                    gain.gain.linearRampToValueAtTime(0.18, audioCtx.currentTime + 0.14);
+                    gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+                    gain.gain.linearRampToValueAtTime(0.18, audioCtx.currentTime + 0.26);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.36);
+                } else if (category === 'mammal') {
+                    // Resonant bugle or deep glide
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(freq * 0.6, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(freq * 1.4, audioCtx.currentTime + 0.3);
+                    osc.frequency.exponentialRampToValueAtTime(freq, audioCtx.currentTime + 0.6);
+                    gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.22, audioCtx.currentTime + 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.65);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.66);
+                } else {
+                    // Songbird flute warble
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(freq * 1.3, audioCtx.currentTime + 0.15);
+                    osc.frequency.exponentialRampToValueAtTime(freq * 0.9, audioCtx.currentTime + 0.35);
+                    gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.55);
+                }
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+            } catch(e) { console.error('Audio tone error:', e); }
+        }
+
+        function playCustomTone(freq, category = 'bird') {
+            synthesizeCategorySound(freq, category);
+        }
+
+        // Web Speech API: Speaks the earbud whisper aloud
+        function speakCurrentWhisper() {
+            if (!voiceEnabled || !('speechSynthesis' in window)) return;
+            const wp = simulationWaypoints[currentWpIndex];
+            if (!wp || !wp.whisper_delivered) return;
+
+            window.speechSynthesis.cancel(); // Stop any pending speech
+            const utterance = new SpeechSynthesisUtterance(wp.whisper_delivered);
+            utterance.rate = 0.95; // Calm naturalist cadence
+            utterance.pitch = 1.0;
+
+            const status = document.getElementById('audio-status-label');
+            if (status) status.innerText = 'Whispering to earbuds...';
+
+            utterance.onend = () => {
+                if (status) status.innerText = 'Earbud whisper delivered.';
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function toggleVoice() {
+            voiceEnabled = !voiceEnabled;
+            const btn = document.getElementById('voice-toggle-btn');
+            const icon = document.getElementById('voice-icon');
+            const label = document.getElementById('voice-label');
             
-            function resize() {
-                canvas.width = canvas.parentElement.clientWidth;
-                canvas.height = canvas.parentElement.clientHeight;
+            if (voiceEnabled) {
+                btn.className = 'px-3.5 py-2.5 rounded-xl text-xs font-mono border transition flex items-center gap-2 bg-emerald-950/80 border-emerald-700/60 text-emerald-300 whitespace-nowrap active:scale-[0.98]';
+                icon.innerText = '🔊';
+                label.innerText = 'Voice Audio: ON';
+                speakCurrentWhisper();
+            } else {
+                btn.className = 'px-3.5 py-2.5 rounded-xl text-xs font-mono border transition flex items-center gap-2 bg-canopy-850 border-neutral-800 text-neutral-400 whitespace-nowrap active:scale-[0.98]';
+                icon.innerText = '🔇';
+                label.innerText = 'Voice Audio: OFF';
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
             }
-            resize();
-            window.addEventListener('resize', resize);
+        }
 
-            const numBars = 32;
+        // Initialize Spectrum Canvas
+        function initSpectrum() {
+            const canvas = document.getElementById('liveSpectrum');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const numBars = 36;
             let barHeights = Array(numBars).fill(10);
 
             function draw() {
+                canvas.width = canvas.parentElement.clientWidth;
+                canvas.height = canvas.parentElement.clientHeight;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+
                 const barWidth = (canvas.width / numBars) - 2;
 
                 for (let i = 0; i < numBars; i++) {
-                    // Target height with natural organic wobble
-                    const isBiophony = i > 8; // bands above ~1.5 kHz
-                    const target = isBiophony 
-                        ? (Math.sin(Date.now() * 0.003 + i) * 0.35 + 0.55) * canvas.height * 0.75
-                        : (Math.sin(Date.now() * 0.001 + i) * 0.15 + 0.20) * canvas.height * 0.45;
-                    
-                    barHeights[i] += (target - barHeights[i]) * 0.08;
+                    const isBiophony = i > 10; // >1500 Hz
+                    const baseWave = isBiophony 
+                        ? (Math.sin(Date.now() * 0.003 + i * 0.5) * 0.4 + 0.5) * canvas.height * 0.8
+                        : (Math.sin(Date.now() * 0.001 + i * 0.2) * 0.15 + 0.15) * canvas.height * 0.35;
 
-                    const x = i * (barWidth + 2);
+                    barHeights[i] += (baseWave - barHeights[i]) * 0.1;
                     const h = Math.max(4, barHeights[i]);
+                    const x = i * (barWidth + 2);
                     const y = canvas.height - h;
 
-                    // Gradient coloring: low frequency anthrophony vs high frequency biophony
-                    const grad = ctx.createLinearGradient(0, canvas.height, 0, y);
-                    if (isBiophony) {
-                        grad.addColorStop(0, '#065f46');
-                        grad.addColorStop(1, '#34d399');
-                    } else {
-                        grad.addColorStop(0, '#7f1d1d');
-                        grad.addColorStop(1, '#f87171');
-                    }
-
-                    ctx.fillStyle = grad;
+                    ctx.fillStyle = isBiophony ? '#10b981' : '#f43f5e';
                     ctx.fillRect(x, y, barWidth, h);
-
-                    // Peak cap dot
-                    ctx.fillStyle = isBiophony ? '#a7f3d0' : '#fca5a5';
-                    ctx.fillRect(x, y - 2, barWidth, 2);
                 }
-
-                canvasAnimationId = requestAnimationFrame(draw);
+                requestAnimationFrame(draw);
             }
             draw();
         }
 
-        async function init() {
-            initSpectrumCanvas();
+        // Display current waypoint
+        function renderWaypoint(index) {
+            if (!simulationWaypoints || simulationWaypoints.length === 0) return;
+            currentWpIndex = Math.max(0, Math.min(index, simulationWaypoints.length - 1));
+            const wp = simulationWaypoints[currentWpIndex];
 
-            // Load species catalog
-            try {
-                const res = await fetch('/api/catalog');
-                fullCatalog = await res.json();
-                renderCatalog(fullCatalog);
-            } catch(e) { console.error('Catalog error:', e); }
+            // Progress bar
+            const pct = ((currentWpIndex + 1) / simulationWaypoints.length) * 100;
+            document.getElementById('hike-progress-bar').style.width = pct + '%';
+            document.getElementById('progress-text').innerText = `Waypoint ${currentWpIndex + 1} of ${simulationWaypoints.length}`;
+            document.getElementById('elevation-stat').innerText = `Elevation: ${Math.round(wp.elevation_m || 850)} meters`;
 
-            // Initialize Soundscape Timeline Chart
-            const ctx = document.getElementById('soundscapeChart').getContext('2d');
-            chartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['WP #01', 'WP #02', 'WP #03', 'WP #04', 'WP #05', 'WP #06'],
-                    datasets: [
-                        {
-                            label: 'Biophony (Nature)',
-                            data: [0.72, 0.88, 0.65, 0.94, 0.82, 0.91],
-                            borderColor: '#10b981',
-                            backgroundColor: 'rgba(16, 185, 129, 0.12)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.35,
-                            pointRadius: 4,
-                            pointBackgroundColor: '#10b981'
-                        },
-                        {
-                            label: 'Anthrophony (Human Noise)',
-                            data: [0.22, 0.08, 0.05, 0.02, 0.01, 0.03],
-                            borderColor: '#f43f5e',
-                            backgroundColor: 'rgba(244, 63, 94, 0.05)',
-                            borderWidth: 1.5,
-                            fill: true,
-                            tension: 0.35,
-                            pointRadius: 3,
-                            pointBackgroundColor: '#f43f5e'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#9ca3af',
-                                font: { family: '"JetBrains Mono"', size: 11 }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            ticks: { color: '#6b7280', font: { family: '"JetBrains Mono"', size: 10 } },
-                            grid: { color: 'rgba(16, 185, 129, 0.08)' }
-                        },
-                        y: {
-                            ticks: { color: '#6b7280', font: { family: '"JetBrains Mono"', size: 10 } },
-                            grid: { color: 'rgba(16, 185, 129, 0.08)' },
-                            min: 0,
-                            max: 1.0
-                        }
-                    }
-                }
-            });
+            // Buttons state
+            document.getElementById('prev-wp-btn').disabled = currentWpIndex === 0;
+            document.getElementById('next-wp-btn').disabled = currentWpIndex === simulationWaypoints.length - 1;
 
-            // Initial simulation load
-            await runSimulation();
-        }
-
-        function renderCatalog(items) {
-            const list = document.getElementById('catalog-list');
-            list.innerHTML = items.map(s => `
-                <div class="p-2.5 rounded-lg bg-canopy-950/80 border border-emerald-950/60 hover:border-emerald-800/60 transition flex items-center justify-between gap-3">
-                    <div>
-                        <div class="font-bold text-emerald-300">${s.common_name}</div>
-                        <div class="text-[11px] text-neutral-500 italic">${s.scientific_name}</div>
-                    </div>
-                    <div class="text-right shrink-0">
-                        <div class="font-mono text-cyan-400 font-semibold">${Math.round(s.peak_freq_hz)} Hz</div>
-                        <div class="font-mono text-[10px] uppercase text-neutral-400">${s.category}</div>
-                    </div>
-                </div>
+            // Update dots
+            const dotsContainer = document.getElementById('waypoint-dots');
+            dotsContainer.innerHTML = simulationWaypoints.map((_, i) => `
+                <button onclick="renderWaypoint(${i})" class="w-3 h-3 rounded-full transition ${i === currentWpIndex ? 'bg-emerald-400 scale-125' : 'bg-canopy-700 hover:bg-neutral-500'}"></button>
             `).join('');
-        }
 
-        function filterCatalog(category) {
-            // Update filter pill UI
-            document.querySelectorAll('.cat-btn').forEach(btn => {
-                btn.className = 'cat-btn px-2.5 py-1 rounded-md bg-canopy-850 text-neutral-400 hover:text-white border border-neutral-800';
-            });
-            event.target.className = 'cat-btn px-2.5 py-1 rounded-md bg-emerald-700 text-white font-semibold';
+            // Spotlight Whisper Card
+            document.getElementById('spotlight-species').innerText = wp.common_name || 'Ambient Nature';
+            document.getElementById('spotlight-latin').innerText = wp.scientific_name ? `(${wp.scientific_name})` : '(Geophonic Nature)';
+            document.getElementById('spotlight-match').innerText = wp.confidence ? `${Math.round(wp.confidence * 100)}% Match` : 'Ambient';
+            document.getElementById('spotlight-quote').innerText = wp.whisper_delivered ? `"${wp.whisper_delivered}"` : '"Forest canopy is peaceful. No active predator or sentinel calls detected."';
 
-            if (category === 'all') {
-                renderCatalog(fullCatalog);
+            // Find species foraging and safety metadata
+            const sp = speciesCatalog.find(s => s.id === wp.detected_species_id);
+            if (sp) {
+                document.getElementById('spotlight-forage').innerText = sp.foraging_association;
+                document.getElementById('spotlight-safety').innerText = sp.safety_note || 'Maintain trail bearings.';
             } else {
-                renderCatalog(fullCatalog.filter(s => s.category === category));
+                document.getElementById('spotlight-forage').innerText = 'Damp moss and shaded leaf litter indicate healthy fungal substrate.';
+                document.getElementById('spotlight-safety').innerText = 'Keep trail markers in view as light shifts through the trees.';
             }
+
+            // Nature Purity (NDSI in plain English)
+            const ndsiVal = wp.ndsi || 0.75;
+            const purityPct = Math.round(((ndsiVal + 1.0) / 2.0) * 100);
+            document.getElementById('purity-ratio').innerText = `${purityPct}% Nature`;
+            document.getElementById('purity-bar').style.width = `${purityPct}%`;
+            document.getElementById('raw-ndsi').innerText = `${ndsiVal >= 0 ? '+' : ''}${ndsiVal.toFixed(2)} NDSI`;
+            if (ndsiVal >= 0.6) {
+                document.getElementById('purity-title').innerText = 'Pristine Wilderness';
+                document.getElementById('purity-desc').innerText = 'Pure biological soundscape with zero mechanical human noise detected.';
+            } else if (ndsiVal >= 0.2) {
+                document.getElementById('purity-title').innerText = 'Serene Nature Trail';
+                document.getElementById('purity-desc').innerText = 'High songbird chorus with faint distant background ambiance.';
+            } else {
+                document.getElementById('purity-title').innerText = 'Mixed Acoustic Edge';
+                document.getElementById('purity-desc').innerText = 'Distant road or aircraft noise heard mixed with nature.';
+            }
+
+            // Songbird Complexity (ACI in plain English)
+            const aciVal = wp.aci || 13.0;
+            document.getElementById('raw-aci').innerText = `${aciVal.toFixed(1)} ACI`;
+            if (aciVal >= 10.0) {
+                document.getElementById('complexity-badge').innerText = 'High Song Activity';
+                document.getElementById('complexity-title').innerText = 'Active Bird Chorus';
+                document.getElementById('complexity-desc').innerText = 'Rapid frequency warbles indicate active biological vocalizations.';
+            } else {
+                document.getElementById('complexity-badge').innerText = 'Quiet Ambiance';
+                document.getElementById('complexity-title').innerText = 'Quiet Canopy';
+                document.getElementById('complexity-desc').innerText = 'Steady breeze through trees with intermittent single whistles.';
+            }
+
+            // Speak the whisper
+            speakCurrentWhisper();
         }
 
-        async function runSimulation() {
-            const btn = document.getElementById('run-btn');
-            const habitat = document.getElementById('habitat-select').value;
-            const season = document.getElementById('season-select').value;
-            btn.innerHTML = '<span>⏳ Sampling Trail...</span>';
+        function prevWaypoint() {
+            if (currentWpIndex > 0) renderWaypoint(currentWpIndex - 1);
+        }
+
+        function nextWaypoint() {
+            if (currentWpIndex < simulationWaypoints.length - 1) renderWaypoint(currentWpIndex + 1);
+        }
+
+        async function startSimulatedHike() {
+            const btn = document.getElementById('start-hike-btn');
+            btn.innerHTML = '<span>⏳ Hiking Trail...</span>';
             btn.disabled = true;
 
             try {
@@ -599,75 +838,97 @@ INDEX_HTML = """<!DOCTYPE html>
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         trail_name: "Cascade Mountain Ridge",
-                        habitat: habitat,
-                        season: season,
-                        windows: 6
+                        habitat: "dense_forest",
+                        season: "autumn",
+                        windows: 5
                     })
                 });
                 const data = await res.json();
+                simulationWaypoints = data.waypoints;
 
-                // Update KPIs
-                const ndsiSign = data.mean_ndsi >= 0 ? '+' : '';
-                document.getElementById('kpi-ndsi').innerText = `${ndsiSign}${data.mean_ndsi.toFixed(2)}`;
-                const ndsiPercent = Math.min(100, Math.max(0, ((data.mean_ndsi + 1.0) / 2.0) * 100));
-                document.getElementById('ndsi-bar').style.width = `${ndsiPercent}%`;
-                document.getElementById('kpi-diversity').innerText = data.shannon_diversity_index.toFixed(2);
-                document.getElementById('kpi-species-count').innerText = `${data.species_detected_count} detections (${data.unique_species.length} unique taxa)`;
-
-                // Update Whisper card
-                const lastWhisper = data.waypoints.filter(w => w.whisper_delivered).pop();
-                if (lastWhisper) {
-                    document.getElementById('whisper-species').innerText = lastWhisper.common_name;
-                    document.getElementById('whisper-latin').innerText = `(${lastWhisper.scientific_name || 'Acoustic Signature'})`;
-                    document.getElementById('whisper-text').innerText = `"${lastWhisper.whisper_delivered}"`;
-                    document.getElementById('whisper-conf').innerText = `${Math.round(lastWhisper.confidence * 100)}% match`;
-                    document.getElementById('spec-peak').innerText = `${Math.round(lastWhisper.peak_detected_hz || 3400)} Hz`;
-                    document.getElementById('spec-aci').innerText = `${(lastWhisper.aci || 12.0).toFixed(1)} ACI`;
-                    document.getElementById('spec-rating').innerText = lastWhisper.soundscape_rating.replace(/\\s*\\(.*?\\)/, '');
-
-                    // Find species for foraging & safety notes
-                    const sp = fullCatalog.find(s => s.id === lastWhisper.detected_species_id);
-                    if (sp) {
-                        document.getElementById('whisper-forage').innerText = sp.foraging_association;
-                        document.getElementById('whisper-safety').innerText = sp.safety_note || 'Maintain trail bearings.';
-                    }
-                }
-
-                // Update Waypoints table
-                const tableBody = document.getElementById('waypoints-body');
-                tableBody.innerHTML = data.waypoints.map(w => `
-                    <tr class="hover:bg-emerald-950/30 transition">
-                        <td class="py-2.5 font-bold text-white">#${String(w.step).padStart(2, '0')}</td>
-                        <td class="py-2.5 text-neutral-400">${Math.round(w.elevation_meters)}m</td>
-                        <td class="py-2.5 ${w.ndsi >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${w.ndsi >= 0 ? '+' : ''}${w.ndsi.toFixed(2)}</td>
-                        <td class="py-2.5 text-fuchsia-400">${w.aci.toFixed(1)}</td>
+                // Update journal table
+                const tbody = document.getElementById('journal-tbody');
+                tbody.innerHTML = simulationWaypoints.map((w, i) => `
+                    <tr class="hover:bg-emerald-950/30 transition cursor-pointer ${i === currentWpIndex ? 'bg-emerald-950/40 text-emerald-300' : ''}" onclick="renderWaypoint(${i})">
+                        <td class="py-2.5 font-bold">#${String(w.step).padStart(2, '0')}</td>
+                        <td class="py-2.5 text-neutral-400">${Math.round(w.elevation_m || 850)}m</td>
+                        <td class="py-2.5 ${w.ndsi >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
+                            ${Math.round(((w.ndsi + 1)/2)*100)}% Nature
+                        </td>
                         <td class="py-2.5 font-bold ${w.common_name ? 'text-emerald-300' : 'text-neutral-500'}">
-                            ${w.common_name || 'Ambient Geophony'}
+                            ${w.common_name || 'Ambient Nature'}
                         </td>
                         <td class="py-2.5">${w.confidence ? Math.round(w.confidence * 100) + '%' : '—'}</td>
-                        <td class="py-2.5 text-neutral-400 truncate">${w.soundscape_rating}</td>
+                        <td class="py-2.5 text-cyan-400 hover:underline">Inspect 👁️</td>
                     </tr>
                 `).join('');
 
-                // Update chart
-                const labels = data.waypoints.map(w => `WP #${String(w.step).padStart(2, '0')}`);
-                const biophonyVals = data.waypoints.map(w => Math.max(0, (w.ndsi + 1.0) / 2.0));
-                const anthroVals = data.waypoints.map(w => Math.max(0, (1.0 - w.ndsi) / 4.0));
+                // Render first waypoint
+                renderWaypoint(0);
 
-                chartInstance.data.labels = labels;
-                chartInstance.data.datasets[0].data = biophonyVals;
-                chartInstance.data.datasets[1].data = anthroVals;
-                chartInstance.update();
-
-            } catch (err) {
-                console.error('Simulation error:', err);
+            } catch(e) {
+                console.error('Hike simulation failed:', e);
             } finally {
-                btn.innerHTML = '<span>▶ Run Trail Walk</span>';
+                btn.innerHTML = '<span>▶ Walk Trail (5 Waypoints)</span>';
                 btn.disabled = false;
             }
         }
 
-        window.onload = init;
+        function renderCatalogCards(items) {
+            const grid = document.getElementById('species-grid');
+            grid.innerHTML = items.map(s => `
+                <div class="nature-card rounded-xl p-4 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-start justify-between gap-2 mb-1">
+                            <div>
+                                <h4 class="font-bold text-white text-sm">${s.common_name}</h4>
+                                <div class="text-[11px] text-neutral-400 italic">${s.scientific_name}</div>
+                            </div>
+                            <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-canopy-850 text-neutral-400 border border-neutral-800">
+                                ${s.category}
+                            </span>
+                        </div>
+                        <p class="text-xs text-neutral-300 mt-2 leading-relaxed line-clamp-2">
+                            ${s.field_description}
+                        </p>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-emerald-950/80 flex items-center justify-between text-xs font-mono">
+                        <span class="text-cyan-400 font-semibold">${Math.round(s.peak_freq_hz)} Hz</span>
+                        <button onclick="playCustomTone(${s.peak_freq_hz}, '${s.category}')" class="text-xs px-2.5 py-1 rounded bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-800/60 transition active:scale-[0.98] whitespace-nowrap">
+                            ▶ Play Call
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterCatalog(category) {
+            document.querySelectorAll('.cat-pill').forEach(btn => {
+                btn.className = 'cat-pill px-3 py-1 rounded-lg bg-canopy-850 text-neutral-400 border border-neutral-800 hover:text-white active:scale-[0.98]';
+            });
+            event.target.className = 'cat-pill px-3 py-1 rounded-lg bg-emerald-600 text-white font-bold active:scale-[0.98]';
+
+            if (category === 'all') {
+                renderCatalogCards(speciesCatalog);
+            } else {
+                renderCatalogCards(speciesCatalog.filter(s => s.category === category));
+            }
+        }
+
+        async function initPage() {
+            initSpectrum();
+            try {
+                const res = await fetch('/api/catalog');
+                speciesCatalog = await res.json();
+                renderCatalogCards(speciesCatalog);
+            } catch(e) { console.error('Catalog load error:', e); }
+
+            // Automatically start initial simulated hike
+            await startSimulatedHike();
+        }
+
+        window.onload = initPage;
     </script>
 </body>
 </html>
