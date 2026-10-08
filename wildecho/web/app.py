@@ -174,8 +174,8 @@ INDEX_HTML = """<!DOCTYPE html>
             <a href="https://github.com/fab-c14/wildecho" target="_blank" rel="noopener" class="px-3.5 py-1.5 bg-canopy-850 hover:bg-canopy-800 active:scale-[0.98] text-white font-mono text-xs rounded-xl border border-emerald-900/60 transition whitespace-nowrap shadow-sm">
                 GitHub Repo ↗
             </a>
-            <a href="https://dev.to/challenges/hf26" target="_blank" rel="noopener" class="px-3.5 py-1.5 bg-emerald-950/80 hover:bg-emerald-900 active:scale-[0.98] text-emerald-300 font-mono text-xs rounded-xl border border-emerald-800/60 transition whitespace-nowrap">
-                DEV Challenge Hub ↗
+            <a href="https://dev.to/fabc14/wildecho-offline-backcountry-acoustic-nature-explorer-eyes-free-audio-field-guide-6k3" target="_blank" rel="noopener" class="px-3.5 py-1.5 bg-emerald-950/80 hover:bg-emerald-900 active:scale-[0.98] text-emerald-300 font-mono text-xs rounded-xl border border-emerald-800/60 transition whitespace-nowrap">
+                DEV Submission ↗
             </a>
             <a href="/docs" target="_blank" class="px-3 py-1.5 bg-canopy-900 hover:bg-canopy-850 text-neutral-400 hover:text-white font-mono text-xs rounded-xl border border-neutral-800 transition whitespace-nowrap">
                 API Docs ↗
